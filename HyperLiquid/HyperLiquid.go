@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // this is requied request for hyperliquid
@@ -32,6 +33,8 @@ type Coin struct {
 
 // Coin price getter
 func GetPriceHyperLiquid(coin string) (Coin, error) {
+	client := &http.Client{Timeout: 10 * time.Second}
+
 	data := newData()
 
 	requestBody := InfoRequest{
@@ -44,7 +47,7 @@ func GetPriceHyperLiquid(coin string) (Coin, error) {
 		return Coin{}, err
 	}
 
-	response, err := http.Post(data.url, "application/json", bytes.NewBuffer(jsonBytes))
+	response, err := client.Post(data.url, "application/json", bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		fmt.Print("Fail in request", err)
 		return Coin{}, err
