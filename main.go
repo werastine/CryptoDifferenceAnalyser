@@ -1,22 +1,24 @@
 package main
 
 import (
-	// "fmt"
-
-	hype "DifferenceAnalyser/hyperliquid"
 	"fmt"
+
+	binance "github.com/werastine/CryptoDifferenceAnalyser/BinanceMRKT"
+	hype "github.com/werastine/CryptoDifferenceAnalyser/HyperLiquid"
 )
 
 func main() {
 
-	btcInfo, err := hype.GetPriceHyperLiquid("TON")
+	CoinHL, err := hype.GetPriceHyperLiquid("LINK")
 	if err != nil {
 		fmt.Println("Found error ir GetPriceHyperLiquid func", err)
 	}
 
-	if btcInfo.Price >= 77000 {
-		fmt.Printf("%s price is %f and it's more than 77000", btcInfo.Coin, btcInfo.Price)
-	} else {
-		fmt.Printf("%s price is %f, its less then 77000", btcInfo.Coin, btcInfo.Price)
+	CoinBN, err := binance.GetPriceBinance("LINK")
+	if err != nil {
+		fmt.Println("Found error ir GetPriceHyperLiquid func", err)
 	}
+
+	fmt.Println(CoinHL.Coin, ":", CoinHL.Price)
+	fmt.Println(CoinBN.Coin, ":", CoinBN.Price)
 }
