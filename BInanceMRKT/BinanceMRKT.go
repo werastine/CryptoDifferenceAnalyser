@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type url struct {
@@ -28,17 +27,15 @@ type binanceTicker struct {
 	Price  string `json:"price"`
 }
 
-// CoinToReturn contains data about the coin wich user want to recieve
+// CoinToReturn contains data about the coin wich user going to recieve
 type CoinToReturn struct {
 	Coin       string
 	Price      float64
 	STExchange string
 }
 
-// GetPriceBinance struct - public request
-func GetPriceBinance(Coin string) (CoinToReturn, error) {
-
-	client := &http.Client{Timeout: 10 * time.Second}
+// GetPriceBinance func - public request
+func GetPriceBinance(client *http.Client, Coin string) (CoinToReturn, error) {
 
 	urlData := newURL()
 	urlData.url = insert(urlData.url, 51, Coin)
