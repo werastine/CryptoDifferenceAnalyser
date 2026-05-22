@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 // InfoRequest is requied request for hyperliquid
@@ -28,7 +27,7 @@ func newData() *Data {
 	}
 }
 
-// CoinToReturn contains data about the coin wich user want to recieve
+// CoinToReturn contains data about the coin wich user going to recieve
 type CoinToReturn struct {
 	Coin       string
 	Price      float64
@@ -36,8 +35,7 @@ type CoinToReturn struct {
 }
 
 // GetPriceHyperLiquid func - global price getter
-func GetPriceHyperLiquid(coin string) (CoinToReturn, error) {
-	client := &http.Client{Timeout: 10 * time.Second}
+func GetPriceHyperLiquid(client *http.Client, coin string) (CoinToReturn, error) {
 
 	data := newData()
 
@@ -77,8 +75,8 @@ func GetPriceHyperLiquid(coin string) (CoinToReturn, error) {
 
 	price, ok := prices[coin]
 	if !ok {
-		fmt.Println("There is no", coin)
-		return CoinToReturn{}, fmt.Errorf("fail in search the coin")
+		// fmt.Println("wrong request, can't find:", coin)
+		return CoinToReturn{}, fmt.Errorf("wrong request, can't find: %s", coin)
 	}
 
 	fprice, err := strconv.ParseFloat(price, 64)
