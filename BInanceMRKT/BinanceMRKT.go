@@ -1,3 +1,4 @@
+// Package binancemrkt contains the logic of request on Binance exchange
 package binancemrkt
 
 import (
@@ -8,7 +9,7 @@ import (
 	"time"
 )
 
-type Url struct {
+type url struct {
 	url string
 }
 
@@ -18,8 +19,8 @@ func insert(url string, idx int, insertion string) string {
 	return res
 }
 
-func newUrl() Url {
-	return Url{url: "https://api.binance.com/api/v3/ticker/price?symbol="}
+func newURL() url {
+	return url{url: "https://api.binance.com/api/v3/ticker/price?symbol="}
 }
 
 type binanceTicker struct {
@@ -27,16 +28,19 @@ type binanceTicker struct {
 	Price  string `json:"price"`
 }
 
+// CoinToReturn contains data about the coin wich user want to recieve
 type CoinToReturn struct {
-	Coin  string
-	Price float64
+	Coin       string
+	Price      float64
+	STExchange string
 }
 
+// GetPriceBinance struct - public request
 func GetPriceBinance(Coin string) (CoinToReturn, error) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
-	urlData := newUrl()
+	urlData := newURL()
 	urlData.url = insert(urlData.url, 51, Coin)
 
 	response, err := client.Get(urlData.url)
@@ -45,7 +49,16 @@ func GetPriceBinance(Coin string) (CoinToReturn, error) {
 		return CoinToReturn{}, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			fmt.Println("fail to close the body", err)
+		}
+	}()
+
+	if response.StatusCode != http.StatusOK {
+		err := fmt.Errorf("fail bad status %d", response.StatusCode)
+		return CoinToReturn{}, err
+	}
 
 	var ticker binanceTicker
 	if err := json.NewDecoder(response.Body).Decode(&ticker); err != nil {
@@ -59,7 +72,7 @@ func GetPriceBinance(Coin string) (CoinToReturn, error) {
 		return CoinToReturn{}, err
 	}
 
-	coin := CoinToReturn{Coin: ticker.Symbol, Price: fprice}
+	coin := CoinToReturn{Coin: ticker.Symbol, Price: fprice, STExchange: "Binance"}
 
 	return coin, nil
 }
