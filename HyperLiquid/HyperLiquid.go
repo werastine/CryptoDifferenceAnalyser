@@ -1,20 +1,22 @@
+// Package hyperliquid contains the logic of request on HyperLiquid exchange
 package hyperliquid
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-// this is requied request for hyperliquid
+// InfoRequest is requied request for hyperliquid
 type InfoRequest struct {
 	Type string `json:"type"`
 }
 
-// local data for hyperliquid.go
+// Data struct contains url from hyperliquid
 type Data struct {
 	url string
 }
@@ -26,13 +28,15 @@ func newData() *Data {
 	}
 }
 
-type Coin struct {
-	Coin  string
-	Price float64
+// CoinToReturn contains data about the coin wich user want to recieve
+type CoinToReturn struct {
+	Coin       string
+	Price      float64
+	STExchange string
 }
 
-// Coin price getter
-func GetPriceHyperLiquid(coin string) (Coin, error) {
+// GetPriceHyperLiquid func - global price getter
+func GetPriceHyperLiquid(coin string) (CoinToReturn, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	data := newData()
@@ -43,32 +47,45 @@ func GetPriceHyperLiquid(coin string) (Coin, error) {
 
 	jsonBytes, err := json.Marshal(requestBody)
 	if err != nil {
-		fmt.Print("Fail marhsl json", err)
-		return Coin{}, err
+		fmt.Print("Fail marhsal json", err)
+		return CoinToReturn{}, err
 	}
 
 	response, err := client.Post(data.url, "application/json", bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		fmt.Print("Fail in request", err)
-		return Coin{}, err
+		return CoinToReturn{}, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			fmt.Println("fail to close the body", err)
+		}
+	}()
+
+	if response.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(response.Body)
+		err := fmt.Errorf("fail, wrong status code %d, error is: %s", response.StatusCode, string(bodyBytes))
+		return CoinToReturn{}, err
+	}
 
 	var prices map[string]string
 	if err = json.NewDecoder(response.Body).Decode(&prices); err != nil {
 		fmt.Println("Fail decode json", err)
-		return Coin{}, err
+		return CoinToReturn{}, err
 	}
 
 	price, ok := prices[coin]
 	if !ok {
 		fmt.Println("There is no", coin)
+		return CoinToReturn{}, fmt.Errorf("fail in search the coin")
 	}
+
 	fprice, err := strconv.ParseFloat(price, 64)
 	if err != nil {
 		fmt.Println("Fail convert string price to float64")
+		return CoinToReturn{}, err
 	}
 
-	return Coin{Price: fprice, Coin: coin}, nil
+	return CoinToReturn{Price: fprice, Coin: coin, STExchange: "HyperLiquid"}, nil
 }
