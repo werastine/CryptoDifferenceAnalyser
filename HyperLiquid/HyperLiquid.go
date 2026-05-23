@@ -10,39 +10,37 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/werastine/CryptoDifferenceAnalyser/market"
 )
 
+// ProviderHyperLiquid structure for interface
+type ProviderHyperLiquid struct{}
+
 // InfoRequest is requied request for hyperliquid
-type InfoRequest struct {
+type infoRequest struct {
 	Type string `json:"type"`
 }
 
-// CoinToReturn contains data about the coin wich user going to recieve
-type CoinToReturn struct {
-	Coin       string
-	Price      float64
-	STExchange string
-}
-
-// GetPriceHyperLiquid func - global price getter
-func GetPriceHyperLiquid(client *http.Client, coin string) (CoinToReturn, error) {
+// GetPrice func - global price getter
+func (ProviderHyperLiquid) GetPrice(client *http.Client, coin string) (market.CoinToReturn, error) {
 
 	url := "https://api.hyperliquid.xyz/info"
 
 	coin = strings.ToUpper(coin)
 
-	requestBody := InfoRequest{
+	requestBody := infoRequest{
 		Type: "allMids",
 	}
 
 	jsonBytes, err := json.Marshal(requestBody)
 	if err != nil {
-		return CoinToReturn{}, fmt.Errorf("marhsaling json file: %w", err)
+		return market.CoinToReturn{}, fmt.Errorf("marhsaling json file: %w", err)
 	}
 
 	response, err := client.Post(url, "application/json", bytes.NewBuffer(jsonBytes))
 	if err != nil {
-		return CoinToReturn{}, fmt.Errorf("post request: %w", err)
+		return market.CoinToReturn{}, fmt.Errorf("post request: %w", err)
 	}
 
 	defer func() {
@@ -53,23 +51,23 @@ func GetPriceHyperLiquid(client *http.Client, coin string) (CoinToReturn, error)
 
 	if response.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(response.Body)
-		return CoinToReturn{}, fmt.Errorf("status code %d: %s", response.StatusCode, string(bodyBytes))
+		return market.CoinToReturn{}, fmt.Errorf("status code %d: %s", response.StatusCode, string(bodyBytes))
 	}
 
 	var prices map[string]string
 	if err = json.NewDecoder(response.Body).Decode(&prices); err != nil {
-		return CoinToReturn{}, fmt.Errorf("decoding json: %w", err)
+		return market.CoinToReturn{}, fmt.Errorf("decoding json: %w", err)
 	}
 
 	price, ok := prices[coin]
 	if !ok {
-		return CoinToReturn{}, fmt.Errorf("searching %s in map", coin)
+		return market.CoinToReturn{}, fmt.Errorf("searching %s in map", coin)
 	}
 
 	fprice, err := strconv.ParseFloat(price, 64)
 	if err != nil {
-		return CoinToReturn{}, fmt.Errorf("converting string to float64: %w", err)
+		return market.CoinToReturn{}, fmt.Errorf("converting string to float64: %w", err)
 	}
 
-	return CoinToReturn{Price: fprice, Coin: coin, STExchange: "HyperLiquid"}, nil
+	return market.CoinToReturn{Price: fprice, Symbol: coin, STExchange: "HyperLiquid"}, nil
 }

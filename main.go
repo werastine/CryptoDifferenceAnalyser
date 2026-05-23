@@ -7,31 +7,33 @@ import (
 	"net/http"
 	"time"
 
-	binance "github.com/werastine/CryptoDifferenceAnalyser/BinanceMRKT"
-	bybit "github.com/werastine/CryptoDifferenceAnalyser/ByBit"
-	hyperliquid "github.com/werastine/CryptoDifferenceAnalyser/HyperLiquid"
+	"github.com/werastine/CryptoDifferenceAnalyser/service"
 )
 
 func main() {
+	sharedClient := &http.Client{Timeout: 5 * time.Second}
+	srv := service.NewProviders()
 
-	sharedClient := http.Client{Timeout: 5 * time.Second}
+	BN := srv.Binance()
+	HL := srv.HyperLiquid()
+	BB := srv.Bybit()
 
-	coinBB, err := bybit.GetByBitPrice(&sharedClient, "LINK")
+	CoinBB, err := BB.GetPrice(sharedClient, "TON")
 	if err != nil {
 		log.Printf("[ERROR] Bybit: %v", err)
 	}
 
-	CoinHL, err := hyperliquid.GetPriceHyperLiquid(&sharedClient, "link")
+	CoinHL, err := HL.GetPrice(sharedClient, "link")
 	if err != nil {
 		log.Printf("[ERROR] HyperLiquid: %v", err)
 	}
 
-	CoinBN, err := binance.GetPriceBinance(&sharedClient, "link")
+	CoinBN, err := BN.GetPrice(sharedClient, "link")
 	if err != nil {
 		log.Printf("[ERROR] Binance: %v", err)
 	}
 
-	fmt.Println(coinBB.STExchange, coinBB.Symbol, ":", coinBB.Price)
-	fmt.Println(CoinHL.STExchange, CoinHL.Coin, ":", CoinHL.Price)
-	fmt.Println(CoinBN.STExchange, CoinBN.Coin, ":", CoinBN.Price)
+	fmt.Println(CoinBB.STExchange, CoinBB.Symbol, ":", CoinBB.Price)
+	fmt.Println(CoinHL.STExchange, CoinHL.Symbol, ":", CoinHL.Price)
+	fmt.Println(CoinBN.STExchange, CoinBN.Symbol, ":", CoinBN.Price)
 }

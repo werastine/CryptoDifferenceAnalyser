@@ -5,9 +5,9 @@ import "net/http"
 
 // CoinToReturn - standatr for interface
 type CoinToReturn struct {
-	Symbol   string
-	Price    float64
-	Exchange string
+	Symbol     string
+	Price      float64
+	STExchange string
 }
 
 // PriceProvider contains GetPrice
