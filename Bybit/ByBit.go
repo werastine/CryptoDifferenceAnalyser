@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type tickerByBit struct {
@@ -28,7 +29,7 @@ type CoinToReturn struct {
 // GetByBitPrice - public request for coin price
 func GetByBitPrice(client *http.Client, coin string) (CoinToReturn, error) {
 
-	url := fmt.Sprintf("https://api.bybit.com/v5/market/tickers?category=inverse&symbol=%sUSDT", coin)
+	url := fmt.Sprintf("https://api.bybit.com/v5/market/tickers?category=inverse&symbol=%sUSDT", strings.ToUpper(coin))
 
 	resp, err := client.Get(url)
 	if err != nil {

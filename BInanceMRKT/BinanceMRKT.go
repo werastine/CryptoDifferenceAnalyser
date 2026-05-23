@@ -4,23 +4,11 @@ package binancemrkt
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
-
-type url struct {
-	url string
-}
-
-// Func to add Coin name and USDT into link
-func insert(url string, idx int, insertion string) string {
-	res := url[:idx] + insertion + "USDT" + url[idx:]
-	return res
-}
-
-func newURL() url {
-	return url{url: "https://api.binance.com/api/v3/ticker/price?symbol="}
-}
 
 type binanceTicker struct {
 	Symbol string `json:"symbol"`
@@ -37,39 +25,32 @@ type CoinToReturn struct {
 // GetPriceBinance func - public request
 func GetPriceBinance(client *http.Client, Coin string) (CoinToReturn, error) {
 
-	urlData := newURL()
-	urlData.url = insert(urlData.url, 51, Coin)
+	url := fmt.Sprintf("https://api.binance.com/api/v3/ticker/price?symbol=%sUSDT", strings.ToUpper(Coin))
 
-	response, err := client.Get(urlData.url)
+	response, err := client.Get(url)
 	if err != nil {
-		fmt.Println("Fail got no answer", err)
-		return CoinToReturn{}, err
+		return CoinToReturn{}, fmt.Errorf("send a get request: %w", err)
 	}
 
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			fmt.Println("fail to close the body", err)
+			log.Println("fail to close the body", err)
 		}
 	}()
 
 	if response.StatusCode != http.StatusOK {
-		err := fmt.Errorf("fail bad status %d", response.StatusCode)
-		return CoinToReturn{}, err
+		return CoinToReturn{}, fmt.Errorf("fail bad status %d", response.StatusCode)
 	}
 
 	var ticker binanceTicker
 	if err := json.NewDecoder(response.Body).Decode(&ticker); err != nil {
-		fmt.Println("Got an error in decoding response.Body")
-		return CoinToReturn{}, err
+		return CoinToReturn{}, fmt.Errorf("decoding json file: %w", err)
 	}
 
 	fprice, err := strconv.ParseFloat(ticker.Price, 64)
 	if err != nil {
-		fmt.Println("Fail to convert string to float64", err)
-		return CoinToReturn{}, err
+		return CoinToReturn{}, fmt.Errorf("converting string to float64: %w", err)
 	}
 
-	coin := CoinToReturn{Coin: ticker.Symbol, Price: fprice, STExchange: "Binance"}
-
-	return coin, nil
+	return CoinToReturn{Coin: ticker.Symbol, Price: fprice, STExchange: "Binance"}, nil
 }

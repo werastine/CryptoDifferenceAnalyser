@@ -16,24 +16,22 @@ func main() {
 
 	sharedClient := http.Client{Timeout: 5 * time.Second}
 
-	coinBB, err := bybit.GetByBitPrice(&sharedClient, "TON")
+	coinBB, err := bybit.GetByBitPrice(&sharedClient, "LINK")
 	if err != nil {
 		log.Printf("[ERROR] Bybit: %v", err)
 	}
 
-	CoinHL, err := hyperliquid.GetPriceHyperLiquid(&sharedClient, "TON")
+	CoinHL, err := hyperliquid.GetPriceHyperLiquid(&sharedClient, "link")
 	if err != nil {
-		fmt.Println("Found error in GetPriceHyperLiquid func: ", err)
+		log.Printf("[ERROR] HyperLiquid: %v", err)
 	}
 
-	CoinBN, err := binance.GetPriceBinance(&sharedClient, "TON")
+	CoinBN, err := binance.GetPriceBinance(&sharedClient, "link")
 	if err != nil {
-		fmt.Println("Found error in GetPriceBinance func:", err)
+		log.Printf("[ERROR] Binance: %v", err)
 	}
 
-	fmt.Println(coinBB.STExchange, coinBB.Symbol, ":", CoinHL.Price)
+	fmt.Println(coinBB.STExchange, coinBB.Symbol, ":", coinBB.Price)
 	fmt.Println(CoinHL.STExchange, CoinHL.Coin, ":", CoinHL.Price)
 	fmt.Println(CoinBN.STExchange, CoinBN.Coin, ":", CoinBN.Price)
-
-	// fmt.Println("Difference is:", CoinBN.Price-CoinHL.Price)
 }
