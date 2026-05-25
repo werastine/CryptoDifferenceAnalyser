@@ -2,10 +2,8 @@
 package service
 
 import (
-	binance "github.com/werastine/CryptoDifferenceAnalyser/Binance"
-	bybit "github.com/werastine/CryptoDifferenceAnalyser/ByBit"
-	hyperliquid "github.com/werastine/CryptoDifferenceAnalyser/HyperLiquid"
-	"github.com/werastine/CryptoDifferenceAnalyser/market"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/exchange"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
 // Providers - container of exchanges
@@ -18,9 +16,9 @@ type Providers struct {
 // NewProviders - constructor for providers
 func NewProviders() *Providers {
 	return &Providers{
-		binanceP:     binance.ProviderBinance{},
-		hyperliquidP: hyperliquid.ProviderHyperLiquid{},
-		bybitP:       bybit.ProviderByBit{},
+		binanceP:     exchange.ProviderBinance{},
+		hyperliquidP: exchange.ProviderHyperLiquid{},
+		bybitP:       exchange.ProviderByBit{},
 	}
 }
 

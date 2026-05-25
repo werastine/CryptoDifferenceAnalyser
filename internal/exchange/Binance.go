@@ -1,5 +1,5 @@
-// Package binancemrkt contains the logic of request on Binance exchange
-package binancemrkt
+// Package exchange contains the logic of request on Binance exchange
+package exchange
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/werastine/CryptoDifferenceAnalyser/market"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
 // ProviderBinance structure for interface

@@ -8,7 +8,7 @@ import (
 
 	"time"
 
-	handlers "github.com/werastine/CryptoDifferenceAnalyser/Handlers"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/api"
 	"github.com/werastine/CryptoDifferenceAnalyser/service"
 )
 
@@ -16,8 +16,7 @@ func main() {
 	sharedClient := &http.Client{Timeout: 5 * time.Second}
 	srv := service.NewProviders()
 
-	handlers.RegisterRoutes()
-
+	api.RegisterRoutes()
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		log.Println("[ERROR] connecting to a port:", err)
 	}

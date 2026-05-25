@@ -1,5 +1,5 @@
-// Package bybit contains the logic of request on ByBit exchange
-package bybit
+// Package exchange contains the logic of request on ByBit exchange
+package exchange
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/werastine/CryptoDifferenceAnalyser/market"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
 // ProviderByBit structure for interface

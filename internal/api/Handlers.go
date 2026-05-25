@@ -1,5 +1,5 @@
-// Package handlers contain handlers
-package handlers
+// Package api contain handlers
+package api
 
 import (
 	"fmt"

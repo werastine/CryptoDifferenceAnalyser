@@ -1,5 +1,5 @@
-// Package hyperliquid contains the logic of request on HyperLiquid exchange
-package hyperliquid
+// Package exchange contains the logic of request on HyperLiquid exchange
+package exchange
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/werastine/CryptoDifferenceAnalyser/market"
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
 // ProviderHyperLiquid structure for interface
