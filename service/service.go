@@ -2,7 +2,7 @@
 package service
 
 import (
-	binance "github.com/werastine/CryptoDifferenceAnalyser/BInanceMRKT"
+	binance "github.com/werastine/CryptoDifferenceAnalyser/Binance"
 	bybit "github.com/werastine/CryptoDifferenceAnalyser/ByBit"
 	hyperliquid "github.com/werastine/CryptoDifferenceAnalyser/HyperLiquid"
 	"github.com/werastine/CryptoDifferenceAnalyser/market"
