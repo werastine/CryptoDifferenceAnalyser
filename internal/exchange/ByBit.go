@@ -13,7 +13,13 @@ import (
 )
 
 // ProviderByBit structure for interface
-type ProviderByBit struct{}
+type ProviderByBit struct {
+	client *http.Client
+}
+
+func NewProviderByBit(cl *http.Client) *ProviderByBit {
+	return &ProviderByBit{client: cl}
+}
 
 type tickerByBit struct {
 	Result struct {
@@ -25,11 +31,11 @@ type tickerByBit struct {
 }
 
 // GetPrice - public request for coin price
-func (ProviderByBit) GetPrice(client *http.Client, coin string) (market.CoinToReturn, error) {
+func (b *ProviderByBit) GetPrice(coin string) (market.CoinToReturn, error) {
 
 	url := fmt.Sprintf("https://api.bybit.com/v5/market/tickers?category=inverse&symbol=%sUSDT", strings.ToUpper(coin))
 
-	resp, err := client.Get(url)
+	resp, err := b.client.Get(url)
 	if err != nil {
 		return market.CoinToReturn{}, fmt.Errorf("send get request for %s: %w", coin, err)
 	}

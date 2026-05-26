@@ -13,7 +13,15 @@ import (
 )
 
 // ProviderBinance structure for interface
-type ProviderBinance struct{}
+type ProviderBinance struct {
+	client *http.Client
+}
+
+func NewProviderBinance(cl *http.Client) *ProviderBinance {
+	return &ProviderBinance{
+		client: cl,
+	}
+}
 
 type binanceTicker struct {
 	Symbol string `json:"symbol"`
@@ -21,11 +29,11 @@ type binanceTicker struct {
 }
 
 // GetPrice func - public request
-func (ProviderBinance) GetPrice(client *http.Client, Coin string) (market.CoinToReturn, error) {
+func (b *ProviderBinance) GetPrice(Coin string) (market.CoinToReturn, error) {
 
 	url := fmt.Sprintf("https://api.binance.com/api/v3/ticker/price?symbol=%sUSDT", strings.ToUpper(Coin))
 
-	response, err := client.Get(url)
+	response, err := b.client.Get(url)
 	if err != nil {
 		return market.CoinToReturn{}, fmt.Errorf("send a get request: %w", err)
 	}

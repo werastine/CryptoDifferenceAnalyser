@@ -2,6 +2,8 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/exchange"
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
@@ -14,11 +16,11 @@ type Providers struct {
 }
 
 // NewProviders - constructor for providers
-func NewProviders() *Providers {
+func NewProviders(cl *http.Client) *Providers {
 	return &Providers{
-		binanceP:     exchange.ProviderBinance{},
-		hyperliquidP: exchange.ProviderHyperLiquid{},
-		bybitP:       exchange.ProviderByBit{},
+		binanceP:     exchange.NewProviderBinance(cl),
+		hyperliquidP: exchange.NewProviderHyperLiquid(cl),
+		bybitP:       exchange.NewProviderByBit(cl),
 	}
 }
 

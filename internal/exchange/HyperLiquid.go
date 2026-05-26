@@ -15,7 +15,15 @@ import (
 )
 
 // ProviderHyperLiquid structure for interface
-type ProviderHyperLiquid struct{}
+type ProviderHyperLiquid struct {
+	client *http.Client
+}
+
+func NewProviderHyperLiquid(cl *http.Client) *ProviderHyperLiquid {
+	return &ProviderHyperLiquid{
+		client: cl,
+	}
+}
 
 // InfoRequest is requied request for hyperliquid
 type infoRequest struct {
@@ -23,7 +31,7 @@ type infoRequest struct {
 }
 
 // GetPrice func - global price getter
-func (ProviderHyperLiquid) GetPrice(client *http.Client, coin string) (market.CoinToReturn, error) {
+func (b *ProviderHyperLiquid) GetPrice(coin string) (market.CoinToReturn, error) {
 
 	url := "https://api.hyperliquid.xyz/info"
 
@@ -38,7 +46,7 @@ func (ProviderHyperLiquid) GetPrice(client *http.Client, coin string) (market.Co
 		return market.CoinToReturn{}, fmt.Errorf("marhsaling json file: %w", err)
 	}
 
-	response, err := client.Post(url, "application/json", bytes.NewBuffer(jsonBytes))
+	response, err := b.client.Post(url, "application/json", bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		return market.CoinToReturn{}, fmt.Errorf("post request: %w", err)
 	}
