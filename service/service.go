@@ -3,6 +3,7 @@ package service
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/exchange"
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
@@ -10,14 +11,16 @@ import (
 
 // Providers - container of exchanges
 type Providers struct {
+	waitGroup    *sync.WaitGroup
 	bybitP       market.PriceProvider
 	binanceP     market.PriceProvider
 	hyperliquidP market.PriceProvider
 }
 
 // NewProviders - constructor for providers
-func NewProviders(cl *http.Client) *Providers {
+func NewProviders(cl *http.Client, wg *sync.WaitGroup) *Providers {
 	return &Providers{
+		waitGroup:    wg,
 		binanceP:     exchange.NewProviderBinance(cl),
 		hyperliquidP: exchange.NewProviderHyperLiquid(cl),
 		bybitP:       exchange.NewProviderByBit(cl),
@@ -37,4 +40,9 @@ func (p *Providers) Bybit() market.PriceProvider {
 // HyperLiquid returns hyperliquid.ProviderHyperLiquid{}
 func (p *Providers) HyperLiquid() market.PriceProvider {
 	return p.hyperliquidP
+}
+
+// GetWaiyGroup returns wg
+func (p *Providers) GetWaiyGroup() *sync.WaitGroup {
+	return p.waitGroup
 }
