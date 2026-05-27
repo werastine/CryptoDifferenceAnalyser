@@ -43,6 +43,6 @@ func (p *Providers) HyperLiquid() market.PriceProvider {
 }
 
 // GetWaiyGroup returns wg
-func (p *Providers) GetWaiyGroup() *sync.WaitGroup {
+func (p *Providers) GetWaitGroup() *sync.WaitGroup {
 	return p.waitGroup
 }

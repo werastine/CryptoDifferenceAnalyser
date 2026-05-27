@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-
 	"time"
 
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/api"
