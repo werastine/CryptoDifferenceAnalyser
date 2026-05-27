@@ -5,7 +5,8 @@ import (
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
-type spreadData struct {
+// SpreadData contains data of prices wich we recieved
+type SpreadData struct {
 	BuyPrice     float64
 	BuyExchange  string
 	BuyCoin      string
@@ -15,8 +16,8 @@ type spreadData struct {
 }
 
 // Spread returns buy price and sell price
-func Spread(spread map[market.CoinToReturn]struct{}) *spreadData {
-	sd := spreadData{}
+func Spread(spread map[market.CoinToReturn]struct{}) *SpreadData {
+	sd := SpreadData{}
 
 	for key := range spread {
 		if sd.SellPrice == 0 && sd.BuyPrice == 0 {

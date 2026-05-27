@@ -35,12 +35,8 @@ func (h *Handler) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ERROR %v]", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	fmt.Println("resp body", respBody)
 
 	storage := h.collectPrices(respBody)
-	for key := range storage {
-		fmt.Println(key.STExchange, key.Symbol, key.Price)
-	}
 
 	spreadData := analysis.Spread(storage)
 
@@ -51,17 +47,20 @@ func (h *Handler) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		spreadData.SellEcchange,
 		spreadData.SellPrice-spreadData.BuyPrice,
 	)
-	if err := h.sendData(msg, w); err != nil {
+	if err := h.response(msg, w); err != nil {
 		log.Println("[ERROR] writing response", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
-func (h *Handler) sendData(msg string, w http.ResponseWriter) error {
+// response sends a header and a byte response
+func (h *Handler) response(msg string, w http.ResponseWriter) error {
 	w.WriteHeader(http.StatusAccepted)
 	_, err := w.Write([]byte(msg))
 	return err
 }
 
+// readBodyToString reads body of request and transfers bytes into string
 func readBodyToString(r *http.Request) (string, error) {
 	httpRequestBody, err := io.ReadAll(r.Body)
 	if err != nil {

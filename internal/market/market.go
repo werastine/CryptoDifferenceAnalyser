@@ -6,6 +6,7 @@ type CoinToReturn struct {
 	Symbol     string
 	Price      float64
 	STExchange string
+	Err        error
 }
 
 // PriceProvider contains GetPrice

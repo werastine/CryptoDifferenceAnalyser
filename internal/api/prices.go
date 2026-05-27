@@ -28,7 +28,11 @@ func (h *Handler) collectPrices(symbol string) map[market.CoinToReturn]struct{} 
 	}()
 
 	for val := range transferPoint {
+		if val.Err != nil {
+			continue
+		}
 		storage[val] = struct{}{}
+
 	}
 
 	return storage
@@ -45,6 +49,7 @@ func (h *Handler) fetchBinance(
 	coinData, err := BN.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] Binance: %v", err)
+		coinData.Err = err
 		return
 	}
 	ch <- coinData
@@ -61,6 +66,7 @@ func (h *Handler) fetchByBit(
 	coinData, err := BB.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] ByBit: %v", err)
+		coinData.Err = err
 		return
 	}
 
@@ -78,6 +84,7 @@ func (h *Handler) fetchHyperLiquid(
 	coinData, err := HL.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] HyperLiquid: %v", err)
+		coinData.Err = err
 		return
 	}
 
