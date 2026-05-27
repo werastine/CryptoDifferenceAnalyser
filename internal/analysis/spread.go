@@ -1,5 +1,5 @@
-// Package math
-package mathematic
+// Package analysis contains metrics
+package analysis
 
 import (
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"

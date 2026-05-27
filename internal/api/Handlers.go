@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/werastine/CryptoDifferenceAnalyser/internal/analysis"
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 	"github.com/werastine/CryptoDifferenceAnalyser/service"
 )
@@ -38,7 +39,29 @@ func (h *Handler) SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("resp body", respBody)
 
-	h.getPrices(respBody) // make err check, etc...
+	storage := h.getPrices(respBody)
+	for key := range storage {
+		fmt.Println(key.STExchange, key.Symbol, key.Price)
+	}
+
+	spreadData := analysis.Spread(storage)
+
+	msg := fmt.Sprintf("Buy price(min): %f, %s\nSell price(max): %f, %s\nMaximum spread is %f",
+		spreadData.BuyPrice,
+		spreadData.BuyExchange,
+		spreadData.SellPrice,
+		spreadData.SellEcchange,
+		spreadData.SellPrice-spreadData.BuyPrice,
+	)
+	if err := h.sendData(msg, w); err != nil {
+		log.Println("[ERROR] writing response", err)
+	}
+}
+
+func (h *Handler) sendData(msg string, w http.ResponseWriter) error {
+	w.WriteHeader(http.StatusAccepted)
+	_, err := w.Write([]byte(msg))
+	return err
 }
 
 func readBodyToString(r *http.Request) (string, error) {
@@ -50,8 +73,9 @@ func readBodyToString(r *http.Request) (string, error) {
 	return res, nil
 }
 
-// getprice is func
-func (h *Handler) getPrices(symbol string) {
+// Add error return for getPrices() query (line 41)
+// getPrice returns price in channels to SearchHandler
+func (h *Handler) getPrices(symbol string) map[market.CoinToReturn]struct{} {
 	storage := make(map[market.CoinToReturn]struct{})
 
 	wg := h.providers.GetWaiyGroup()
@@ -75,10 +99,7 @@ func (h *Handler) getPrices(symbol string) {
 		storage[val] = struct{}{}
 	}
 
-	for key := range storage {
-		fmt.Println(key.STExchange, key.Symbol, key.Price)
-	}
-
+	return storage
 }
 
 func (h *Handler) getPriceBinance(
@@ -89,14 +110,12 @@ func (h *Handler) getPriceBinance(
 	defer wg.Done()
 
 	BN := h.providers.Binance()
-	coinData, err := BN.GetPrice(symbol) // first value is coinData
+	coinData, err := BN.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] Binance: %v", err)
 		return
 	}
 	ch <- coinData
-
-	// Send coinData in chanel
 }
 
 func (h *Handler) getPriceByBit(
@@ -107,7 +126,7 @@ func (h *Handler) getPriceByBit(
 	defer wg.Done()
 
 	BB := h.providers.Bybit()
-	coinData, err := BB.GetPrice(symbol) // first value is coinData
+	coinData, err := BB.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] ByBit: %v", err)
 		return
@@ -124,7 +143,7 @@ func (h *Handler) getPriceHyperLiquid(
 	defer wg.Done()
 
 	HL := h.providers.HyperLiquid()
-	coinData, err := HL.GetPrice(symbol) // first value is coinData
+	coinData, err := HL.GetPrice(symbol)
 	if err != nil {
 		log.Printf("[ERROR] HyperLiquid: %v", err)
 		return
