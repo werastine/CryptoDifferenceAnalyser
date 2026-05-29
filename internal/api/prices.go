@@ -9,8 +9,8 @@ import (
 
 func (h *Handler) collectPrices(symbol string) map[market.CoinToReturn]struct{} {
 	storage := make(map[market.CoinToReturn]struct{})
+	wg := &sync.WaitGroup{}
 
-	wg := h.providers.GetWaitGroup()
 	transferPoint := make(chan market.CoinToReturn)
 
 	wg.Add(1)

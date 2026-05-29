@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -20,9 +19,8 @@ func main() {
 	defer stop()
 
 	client := &http.Client{Timeout: 5 * time.Second}
-	waitGroup := &sync.WaitGroup{}
 
-	srv := service.NewProviders(client, waitGroup)
+	srv := service.NewProviders(client)
 	hdl := api.NewHandler(srv)
 
 	router := hdl.RegisterRoutes()
