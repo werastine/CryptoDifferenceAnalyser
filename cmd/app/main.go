@@ -24,9 +24,13 @@ func main() {
 
 	srv := service.NewProviders(client, waitGroup)
 	hdl := api.NewHandler(srv)
-	hdl.RegisterRoutes()
 
-	server := &http.Server{Addr: ":8081"}
+	router := hdl.RegisterRoutes()
+
+	server := &http.Server{
+		Addr:    ":8081",
+		Handler: router,
+	}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
