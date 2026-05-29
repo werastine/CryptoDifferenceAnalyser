@@ -36,6 +36,7 @@ func main() {
 		}
 	}()
 
+	log.Printf("[INFO] Server started at %s", server.Addr)
 	<-ctx.Done()
 	log.Println("[INFO] Recieved stop signal, making graceful shutdown...")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -44,5 +45,5 @@ func main() {
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		log.Println("[ERROR] calling for graceful shutdown", err)
 	}
-	log.Println("Server is gracefuly stopped")
+	log.Println("[INFO] Server is gracefuly stopped")
 }
