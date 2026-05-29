@@ -11,7 +11,7 @@ func (h *Handler) collectPrices(symbol string) []market.CoinToReturn {
 	var results []market.CoinToReturn
 	wg := &sync.WaitGroup{}
 
-	transferPoint := make(chan market.CoinToReturn)
+	transferPoint := make(chan market.CoinToReturn, 3)
 
 	wg.Add(1)
 	go h.fetchBinance(wg, transferPoint, symbol)
