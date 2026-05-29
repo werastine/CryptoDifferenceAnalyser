@@ -23,9 +23,13 @@ func NewHandler(pr *service.Providers) *Handler {
 	}
 }
 
-// RegisterRoutes regists all routes in main, to make all handlers usable
-func (h *Handler) RegisterRoutes() {
-	http.HandleFunc("/search", h.SearchHandler)
+// RegisterRoutes regists all routes in main, to make all handlers usable, returns mux
+func (h *Handler) RegisterRoutes() http.Handler {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/search", h.SearchHandler)
+
+	return mux
 }
 
 // SearchHandler handles operation of getting prices from exchanges
@@ -34,17 +38,22 @@ func (h *Handler) SearchHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("[ERROR %v]", err)
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	storage := h.collectPrices(respBody)
 
-	spreadData := analysis.Spread(storage)
+	spreadData, err := analysis.Spread(storage)
+	if err != nil {
+		log.Println("[ERROR] counting spread", err)
+		return
+	}
 
 	msg := fmt.Sprintf("Buy price(min): %f, %s\nSell price(max): %f, %s\nMaximum spread is %f",
 		spreadData.BuyPrice,
 		spreadData.BuyExchange,
 		spreadData.SellPrice,
-		spreadData.SellEcchange,
+		spreadData.SellExchange,
 		spreadData.SellPrice-spreadData.BuyPrice,
 	)
 	if err := h.response(msg, w); err != nil {
