@@ -2,6 +2,8 @@
 package analysis
 
 import (
+	"fmt"
+
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
@@ -11,13 +13,17 @@ type SpreadData struct {
 	BuyExchange  string
 	BuyCoin      string
 	SellPrice    float64
-	SellEcchange string
+	SellExchange string
 	SellCoin     string
 }
 
 // Spread returns buy price and sell price
-func Spread(spread map[market.CoinToReturn]struct{}) *SpreadData {
+func Spread(spread map[market.CoinToReturn]struct{}) (*SpreadData, error) {
 	sd := SpreadData{}
+
+	if len(spread) <= 1 {
+		return &sd, fmt.Errorf("cannot count spread, recieved less than 2 exchanges")
+	}
 
 	for key := range spread {
 		if sd.SellPrice == 0 && sd.BuyPrice == 0 {
@@ -26,7 +32,7 @@ func Spread(spread map[market.CoinToReturn]struct{}) *SpreadData {
 			sd.BuyCoin = key.Symbol
 
 			sd.SellPrice = key.Price
-			sd.SellEcchange = key.STExchange
+			sd.SellExchange = key.STExchange
 			sd.SellCoin = key.Symbol
 		}
 
@@ -38,10 +44,10 @@ func Spread(spread map[market.CoinToReturn]struct{}) *SpreadData {
 
 		if sd.SellPrice < key.Price {
 			sd.SellPrice = key.Price
-			sd.SellEcchange = key.STExchange
+			sd.SellExchange = key.STExchange
 			sd.SellCoin = key.Symbol
 		}
 	}
 
-	return &sd
+	return &sd, nil
 }
