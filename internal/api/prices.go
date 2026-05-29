@@ -7,8 +7,8 @@ import (
 	"github.com/werastine/CryptoDifferenceAnalyser/internal/market"
 )
 
-func (h *Handler) collectPrices(symbol string) map[market.CoinToReturn]struct{} {
-	storage := make(map[market.CoinToReturn]struct{})
+func (h *Handler) collectPrices(symbol string) []market.CoinToReturn {
+	var results []market.CoinToReturn
 	wg := &sync.WaitGroup{}
 
 	transferPoint := make(chan market.CoinToReturn)
@@ -28,14 +28,12 @@ func (h *Handler) collectPrices(symbol string) map[market.CoinToReturn]struct{} 
 	}()
 
 	for val := range transferPoint {
-		if val.Err != nil {
-			continue
+		if val.Err == nil {
+			results = append(results, val)
 		}
-		storage[val] = struct{}{}
-
 	}
 
-	return storage
+	return results
 }
 
 func (h *Handler) fetchBinance(

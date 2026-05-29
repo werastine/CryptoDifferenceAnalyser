@@ -18,34 +18,34 @@ type SpreadData struct {
 }
 
 // Spread returns buy price and sell price
-func Spread(spread map[market.CoinToReturn]struct{}) (*SpreadData, error) {
+func Spread(spread []market.CoinToReturn) (*SpreadData, error) {
 	sd := SpreadData{}
 
 	if len(spread) <= 1 {
 		return &sd, fmt.Errorf("cannot count spread, recieved less than 2 exchanges")
 	}
 
-	for key := range spread {
+	for key := 0; key != len(spread); key++ {
 		if sd.SellPrice == 0 && sd.BuyPrice == 0 {
-			sd.BuyPrice = key.Price
-			sd.BuyExchange = key.STExchange
-			sd.BuyCoin = key.Symbol
+			sd.BuyPrice = spread[key].Price
+			sd.BuyExchange = spread[key].STExchange
+			sd.BuyCoin = spread[key].Symbol
 
-			sd.SellPrice = key.Price
-			sd.SellExchange = key.STExchange
-			sd.SellCoin = key.Symbol
+			sd.SellPrice = spread[key].Price
+			sd.SellExchange = spread[key].STExchange
+			sd.SellCoin = spread[key].Symbol
 		}
 
-		if sd.BuyPrice > key.Price {
-			sd.BuyPrice = key.Price
-			sd.BuyExchange = key.STExchange
-			sd.BuyCoin = key.Symbol
+		if sd.BuyPrice > spread[key].Price {
+			sd.BuyPrice = spread[key].Price
+			sd.BuyExchange = spread[key].STExchange
+			sd.BuyCoin = spread[key].Symbol
 		}
 
-		if sd.SellPrice < key.Price {
-			sd.SellPrice = key.Price
-			sd.SellExchange = key.STExchange
-			sd.SellCoin = key.Symbol
+		if sd.SellPrice < spread[key].Price {
+			sd.SellPrice = spread[key].Price
+			sd.SellExchange = spread[key].STExchange
+			sd.SellCoin = spread[key].Symbol
 		}
 	}
 
